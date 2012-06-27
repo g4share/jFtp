@@ -4,25 +4,20 @@ import java.awt.GridLayout;
 import java.awt.Label;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
 
 import com.g4share.jftp.command.Cmd;
 import com.g4share.jftp.command.CmdListener;
 import com.g4share.jftp.data.FileNode;
 import com.g4share.jftp.ui.control.tree.FilePanel;
-import com.g4share.jftp.ui.control.tree.FileTreeNode;
 
 @SuppressWarnings("serial")
 public class FileSystemPanel extends JPanel implements ControlsStorage {
 	private Cmd cmd;
 	private CmdListener fsListener = new FileSystemListener();
 	
-	private FilePanel localSystem = new FilePanel("Local System:");
-	private FilePanel remoteSystem = new FilePanel("Remote System:");
+	private FilePanel localSystem;
+	private FilePanel remoteSystem;
 	
 	public FileSystemPanel(Cmd cmd){
 		this.cmd = cmd;
@@ -42,28 +37,24 @@ public class FileSystemPanel extends JPanel implements ControlsStorage {
 
 	@Override
 	public void addControls() {
+		localSystem = new FilePanel("Local System:");
+		remoteSystem = new FilePanel(new NodeExpandeable(){
+			@Override
+			public void expand(String path){
+				cmd.getFileSystem(path);
+			}
+		}, "Remote System:");
+
 		add(localSystem);
 		add(remoteSystem);
 		add(new Label("Hello"));
 		add(new Label("World"));
 	}
 	
-	private class remoteSystemExpansionListener implements TreeExpansionListener  {
-		@Override
-		public void treeCollapsed(TreeExpansionEvent event) {}
-
-		@Override
-		public void treeExpanded(TreeExpansionEvent event) {
-			FileTreeNode expanedNode = (FileTreeNode)event.getPath().getLastPathComponent();
-			if (expanedNode == null) return;
-			cmd.getFileSystem(expanedNode.getFileNode().getName()); //TODO: calculate path 
-		}		
-	}
-	
 	private class FileSystemListener implements CmdListener{
 		@Override
 		public void disconnected() {
-			remoteSystem.setFileSystem(null, new FileNode("/", true, 0), true);
+			remoteSystem.renewTreeModel();
 			remoteSystem.setEnabled(false);
 		}
 
@@ -76,9 +67,8 @@ public class FileSystemPanel extends JPanel implements ControlsStorage {
 		}
 
 		@Override
-		public void fileSystemGot(String path, FileNode node) {
-			//DefaultMutableTreeNode treeNode = searchNode(m_searchText.getText()); 
-			remoteSystem.setFileSystem(null, node, true);
+		public void fileSystemGot(String path, FileNode node) { 
+			remoteSystem.setFileSystem(path, node);
 		}
 	}
 }

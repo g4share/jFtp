@@ -16,8 +16,6 @@ public class FileTreeNode extends DefaultMutableTreeNode {
 		return fileNode;
 	}
 
-	
-	
 	@Override
 	public boolean isLeaf(){
 		return !fileNode.isFolder();

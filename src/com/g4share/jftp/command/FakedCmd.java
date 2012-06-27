@@ -34,8 +34,12 @@ public class FakedCmd implements Cmd {
 		nodes.add(new FileNode("fld21", true, 0));
 		nodes.add(new FileNode("file21", false, 30));
 		nodes.add(new FileNode("file22", false, 40));
-		files.put("fld2", nodes);
-	}
+		files.put("/fld2", nodes);
+
+		nodes = new HashSet<FileNode>();
+		nodes.add(new FileNode("fld211", true, 0));
+		files.put("/fld2/fld21", nodes);
+}
 	
 	@Override
 	public String getConnectedUser(){
@@ -78,9 +82,18 @@ public class FakedCmd implements Cmd {
 
 	@Override
 	public void getFileSystem(String path) {
-		if (!files.containsKey(path)) notifyFileSystemGot(path, null);
+		if (!files.containsKey(path)) {
+			notifyFileSystemGot(path, null);
+			return;
+		}
 		
-		FileNode root = new FileNode(path, true, 0);
+		String fileName = path;
+		if (!path.equals("/")){
+			String[] fileParts = path.split("/");
+			fileName = fileParts[fileParts.length - 1];
+		}
+
+		FileNode root = new FileNode(fileName, true, 0);
 		for(FileNode child : files.get(path)){
 			root.addChild(child);
 		}
