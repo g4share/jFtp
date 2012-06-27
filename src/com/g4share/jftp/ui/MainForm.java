@@ -1,25 +1,25 @@
 package com.g4share.jftp.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 
 import com.g4share.jftp.command.Cmd;
-import com.g4share.jftp.command.CmdListener;
 import com.g4share.jftp.ui.control.ConnectionParamsPanel;
+import com.g4share.jftp.ui.control.FileSystemPanel;
 import com.g4share.jftp.ui.control.StatusPanel;
 
 @SuppressWarnings("serial")
 public final class MainForm extends JCommonForm {
 	private StatusPanel statusPanel;
 	private ConnectionParamsPanel connectionParamsPanel;
+	private FileSystemPanel fileSystemPanel;
 	
-	public MainForm(Cmd cmd){
-		cmd.addListener(new FtpCommandListener());
-		statusPanel = new StatusPanel();
+	public MainForm(Cmd cmd){			
 		connectionParamsPanel = new ConnectionParamsPanel(cmd);
+		fileSystemPanel = new FileSystemPanel(cmd);
+		statusPanel = new StatusPanel(cmd);
 	}
 
 	@Override
@@ -35,31 +35,8 @@ public final class MainForm extends JCommonForm {
         basic.setLayout(new BorderLayout());
         add(basic);
         
-        basic.add(connectionParamsPanel, BorderLayout.NORTH);        
-        basic.add(getOtherPanel());        
+        basic.add(connectionParamsPanel, BorderLayout.NORTH);
+        basic.add(fileSystemPanel, BorderLayout.CENTER);
         basic.add(statusPanel, BorderLayout.SOUTH);
-	}
-	
-	private Component getOtherPanel() {
-		JPanel panel = new JPanel();
-		return panel;
-	}
-	
-	private class FtpCommandListener implements CmdListener{
-		@Override
-		public void disconnected() {
-			statusPanel.setStatus("disconected");
-			connectionParamsPanel.disconnected();
-		}
-
-		@Override
-		public void connected(String userId) {
-			if (userId == null){
-				statusPanel.setStatus("disconected - connection refused.");
-				return;
-			}
-			statusPanel.setStatus("connected (" + userId + ")");		
-			connectionParamsPanel.connected();
-		}		
 	}
 }

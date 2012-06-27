@@ -13,7 +13,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import com.g4share.jftp.command.Cmd;
+import com.g4share.jftp.command.CmdListener;
 import com.g4share.jftp.data.ConnectionParams;
+import com.g4share.jftp.data.FileNode;
 import com.g4share.jftp.utils.UIUtils;
 
 @SuppressWarnings("serial")
@@ -28,6 +30,7 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
 	
 	public ConnectionParamsPanel(Cmd cmd){
 		this.cmd = cmd;
+		this.cmd.addListener(new ConnectionListener());
 		
 		configure();
 		addControls();
@@ -61,6 +64,10 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
 		btConnect.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				if (cmd.getConnectedUser() != null){
+					cmd.disconnect();
+					return;
+				}
 				int port;
 				try{
 					port = Integer.parseInt(tfPort.getText());					
@@ -88,21 +95,29 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
         add(btConnect);
 	}
 	
-	public void connected(){
-		tfHost.setEnabled(false);
-		tfPort.setEnabled(false);
-		tfUser.setEnabled(false);
-		tfPassword.setText("");
-		tfPassword.setEnabled(false);
-		btConnect.setText("Disconnect");
-	}
-	
-	public void disconnected(){
-		tfHost.setEnabled(true);
-		tfPort.setEnabled(true);
-		tfUser.setEnabled(true);
-		tfPassword.setEnabled(true);
-		btConnect.setText("Connect");
-	}		
+	private class ConnectionListener implements CmdListener{
+		@Override
+		public void disconnected() {
+			tfHost.setEnabled(true);
+			tfPort.setEnabled(true);
+			tfUser.setEnabled(true);
+			tfPassword.setEnabled(true);
+			btConnect.setText("Connect");
+		}
 
+		@Override
+		public void connected(String userId) {
+			if (userId == null) return;
+			
+			tfHost.setEnabled(false);
+			tfPort.setEnabled(false);
+			tfUser.setEnabled(false);
+			tfPassword.setText("");
+			tfPassword.setEnabled(false);
+			btConnect.setText("Disconnect");
+		}
+
+		@Override
+		public void fileSystemGot(String path, FileNode node) {}		
+	}
 }
