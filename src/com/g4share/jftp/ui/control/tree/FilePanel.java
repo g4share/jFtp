@@ -28,7 +28,9 @@ public class FilePanel extends JScrollPane {
 		if (parentTreeNode == null){
 			tree.setModel(new DefaultTreeModel(treeNode));
 		}
-		parentTreeNode.add(new FileTreeNode(fileNode));
+		else {
+			parentTreeNode.add(new FileTreeNode(fileNode));
+		}
 	    if (fileNode.getChildren() == null){
 	    	tree.collapsePath(new TreePath(treeNode));
 	    }	    

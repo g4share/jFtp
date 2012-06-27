@@ -48,13 +48,6 @@ public class FileSystemPanel extends JPanel implements ControlsStorage {
 		add(new Label("World"));
 	}
 	
-	private void addBorderedComponent(JComponent component, String caption){
-		component.setBorder(BorderFactory.createEmptyBorder(2, 5, 5, 5));
-		JScrollPane scrollPane = new JScrollPane(component, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBorder(BorderFactory.createTitledBorder(caption));
-		add(scrollPane);		
-	}
-	
 	private class remoteSystemExpansionListener implements TreeExpansionListener  {
 		@Override
 		public void treeCollapsed(TreeExpansionEvent event) {}
