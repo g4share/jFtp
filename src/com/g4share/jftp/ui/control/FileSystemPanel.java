@@ -1,32 +1,39 @@
 package com.g4share.jftp.ui.control;
 
 import java.awt.GridLayout;
-import java.awt.Label;
-
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-
-import com.g4share.jftp.command.Cmd;
-import com.g4share.jftp.command.CmdListener;
+import com.g4share.jftp.command.CmdObserver;
+import com.g4share.jftp.command.CmdProxy;
+import com.g4share.jftp.command.fs.FSObserver;
+import com.g4share.jftp.command.fs.LocalFSSystemStore;
 import com.g4share.jftp.data.FileNode;
-import com.g4share.jftp.ui.control.tree.FilePanel;
+import com.g4share.jftp.ui.control.list.FilePanel;
+import com.g4share.jftp.ui.control.tree.TreePanel;
+import com.g4share.jftp.utils.Utils;
 
 @SuppressWarnings("serial")
 public class FileSystemPanel extends JPanel implements ControlsStorage {
-	private Cmd cmd;
-	private CmdListener fsListener = new FileSystemListener();
+	private CmdProxy cmdProxy;
+	private LocalFSSystemStore localSystemStore = new LocalFSSystemStore();
 	
-	private FilePanel localSystem;
-	private FilePanel remoteSystem;
+	private CmdObserver remoteObserver = new RemoteSystemObserver();
 	
-	public FileSystemPanel(Cmd cmd){
-		this.cmd = cmd;
-		this.cmd.addListener(fsListener);
+	private TreePanel localSystemTree;
+	private TreePanel remoteSystemTree;
+	
+	private FilePanel localSystemPanel;
+	private FilePanel remoteSystemPanel;
+
+	public FileSystemPanel(CmdProxy cmdProxy){
+		this.cmdProxy = cmdProxy;
+		this.cmdProxy.addObserver(remoteObserver);
+		this.localSystemStore.addObserver(new LocalSystemObserver());
 		
 		configure();
 		addControls();
 		
-		fsListener.disconnected();
+		remoteObserver.disconnected();
 	}
 	
 	@Override
@@ -37,38 +44,59 @@ public class FileSystemPanel extends JPanel implements ControlsStorage {
 
 	@Override
 	public void addControls() {
-		localSystem = new FilePanel("Local System:");
-		remoteSystem = new FilePanel(new NodeExpandeable(){
-			@Override
-			public void expand(String path){
-				cmd.getFileSystem(path);
-			}
-		}, "Remote System:");
+		localSystemTree = new TreePanel(localSystemStore, "Local System:");
+		remoteSystemTree = new TreePanel(cmdProxy, "Remote System:");
+		add(localSystemTree);
+		add(remoteSystemTree);
 
-		add(localSystem);
-		add(remoteSystem);
-		add(new Label("Hello"));
-		add(new Label("World"));
+		localSystemPanel = new FilePanel(new FilesStoreFactory() {			
+			@Override
+			public FilesStore get() {
+				return remoteSystemPanel.getFilesStore();
+			}
+		});
+		remoteSystemPanel = new FilePanel(new FilesStoreFactory() {			
+			@Override
+			public FilesStore get() {
+				return localSystemPanel.getFilesStore();
+			}
+		});
+		
+		add(localSystemPanel);
+		add(remoteSystemPanel);
+
+		cmdProxy.getFileSystem(Utils.ROOT_FOLDER);
+		
+		localSystemTree.setEnabled(true);
 	}
 	
-	private class FileSystemListener implements CmdListener{
+	private class LocalSystemObserver implements FSObserver {
+		@Override
+		public void fileSystemGot(String path, FileNode node) { 
+			localSystemTree.setFileSystem(path, node);
+			localSystemPanel.setFileSystem(node);
+		}
+	}
+	
+	private class RemoteSystemObserver implements CmdObserver{
 		@Override
 		public void disconnected() {
-			remoteSystem.renewTreeModel();
-			remoteSystem.setEnabled(false);
+			remoteSystemTree.renewTreeModel();
+			remoteSystemTree.setEnabled(false);
 		}
 
 		@Override
 		public void connected(String userId) {
 			if (userId == null) return;
 			
-			cmd.getFileSystem("/");
-			remoteSystem.setEnabled(true);
+			cmdProxy.getFileSystem(Utils.ROOT_FOLDER);
+			remoteSystemTree.setEnabled(true);
 		}
 
 		@Override
 		public void fileSystemGot(String path, FileNode node) { 
-			remoteSystem.setFileSystem(path, node);
+			remoteSystemTree.setFileSystem(path, node);
+			remoteSystemPanel.setFileSystem(node);
 		}
 	}
 }

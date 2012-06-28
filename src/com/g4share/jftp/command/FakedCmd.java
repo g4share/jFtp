@@ -6,20 +6,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import com.g4share.jftp.data.ConnectionParams;
 import com.g4share.jftp.data.FileNode;
+import com.g4share.jftp.utils.Utils;
 
 public class FakedCmd implements Cmd {
-	List<ConnectionParams> validConnections = new ArrayList<ConnectionParams>();	
-	private List<CmdListener> listeners = new ArrayList<CmdListener>();
-	
 	private String connectedUser = null;
+	
+	List<ConnectionParams> validConnections = new ArrayList<ConnectionParams>();		
 	private Map<String, Set<FileNode>> files = new HashMap<String, Set<FileNode>>();
 	
 	public FakedCmd(){
 		validConnections.add(new ConnectionParams("localhost", 21, "gm", "gh"));
+		validConnections.add(new ConnectionParams("127.0.0.1", 21, "gm", "gh"));
 		validConnections.add(new ConnectionParams("localhost", 21, "sergiu", "glavatchi"));
+		validConnections.add(new ConnectionParams("127.0.0.1", 21, "sergiu", "glavatchi"));
 		
 		Set<FileNode> nodes;
 		
@@ -28,6 +29,8 @@ public class FakedCmd implements Cmd {
 		nodes.add(new FileNode("fld2", true, 0));
 		nodes.add(new FileNode("fld3", true, 0));
 		nodes.add(new FileNode("file", false, 20));
+		nodes.add(new FileNode("data.xml", false, 373));
+		nodes.add(new FileNode("jFtp.zip", false, 400));
 		files.put("/", nodes);
 		
 		nodes = new HashSet<FileNode>();
@@ -47,12 +50,7 @@ public class FakedCmd implements Cmd {
 	}
 	
 	@Override
-	public void addListener(CmdListener listener){
-		listeners.add(listener);
-	}
-	
-	@Override
-	public void connect(ConnectionParams params){
+	public String connect(ConnectionParams params){
 		disconnect();
     
 		for(ConnectionParams param : validConnections){
@@ -66,30 +64,23 @@ public class FakedCmd implements Cmd {
 			}
 		}
     	
-		for(CmdListener listener : listeners){
-			listener.connected(connectedUser);
-		}				
-		return;				
+		return connectedUser;				
 	}
 
 	@Override
 	public void disconnect() {
 		connectedUser = null;
-		for(CmdListener listener : listeners){
-			listener.disconnected();
-		}
 	}
 
 	@Override
-	public void getFileSystem(String path) {
-		if (!files.containsKey(path)) {
-			notifyFileSystemGot(path, null);
-			return;
-		}
+	public FileNode getFileSystem(String path) {
+		if (connectedUser == null) return null;
+		
+		if (!files.containsKey(path)) return null;
 		
 		String fileName = path;
-		if (!path.equals("/")){
-			String[] fileParts = path.split("/");
+		if (!path.equals(Utils.ROOT_FOLDER)){
+			String[] fileParts = path.split(Utils.ROOT_FOLDER);
 			fileName = fileParts[fileParts.length - 1];
 		}
 
@@ -98,12 +89,6 @@ public class FakedCmd implements Cmd {
 			root.addChild(child);
 		}
 		 
-		notifyFileSystemGot(path, root);
-	}
-	
-	private void notifyFileSystemGot(String path, FileNode node){
-		for(CmdListener listener : listeners){
-			listener.fileSystemGot(path, node);
-		}		
+		return root;
 	}
 }

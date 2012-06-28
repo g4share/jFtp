@@ -1,9 +1,8 @@
 package com.g4share.jftp;
 
 import java.lang.reflect.InvocationTargetException;
-
 import javax.swing.UIManager;
-
+import com.g4share.jftp.command.SynchCmdProxy;
 import com.g4share.jftp.command.FakedCmd;
 import com.g4share.jftp.ui.MainForm;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
@@ -17,6 +16,6 @@ public class Main {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		new MainForm(new FakedCmd()).showIt();
+		new MainForm(new SynchCmdProxy(new FakedCmd())).showIt();
 	}
 }

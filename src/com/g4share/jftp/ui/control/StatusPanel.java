@@ -2,12 +2,10 @@ package com.g4share.jftp.ui.control;
 
 import java.awt.FlowLayout;
 import java.awt.Label;
-
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-
-import com.g4share.jftp.command.Cmd;
-import com.g4share.jftp.command.CmdListener;
+import com.g4share.jftp.command.CmdObserver;
+import com.g4share.jftp.command.CmdProxy;
 import com.g4share.jftp.data.FileNode;
 
 
@@ -15,8 +13,8 @@ import com.g4share.jftp.data.FileNode;
 public class StatusPanel extends JPanel implements ControlsStorage {
 	private Label lbStatus = new Label();
 	
-	public StatusPanel(Cmd cmd){
-		cmd.addListener(new StatusListener());
+	public StatusPanel(CmdProxy cmdProxy){
+		cmdProxy.addObserver(new StatusObserver());
 		
 		configure();
 		addControls();		
@@ -35,7 +33,7 @@ public class StatusPanel extends JPanel implements ControlsStorage {
 	}
 	
 
-	private class StatusListener implements CmdListener{
+	private class StatusObserver implements CmdObserver{
 		@Override
 		public void disconnected() {
 			lbStatus.setText("disconected");

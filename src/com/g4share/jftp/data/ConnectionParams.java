@@ -30,6 +30,5 @@ public class ConnectionParams {
 
 	public String getPassword() {
 		return password;
-	}	
-	
+	}
 }

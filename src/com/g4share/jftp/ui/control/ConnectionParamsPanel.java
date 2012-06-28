@@ -4,23 +4,21 @@ import java.awt.FlowLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
-import com.g4share.jftp.command.Cmd;
-import com.g4share.jftp.command.CmdListener;
+import com.g4share.jftp.command.CmdObserver;
+import com.g4share.jftp.command.CmdProxy;
 import com.g4share.jftp.data.ConnectionParams;
 import com.g4share.jftp.data.FileNode;
-import com.g4share.jftp.utils.UIUtils;
+import com.g4share.jftp.utils.Utils;
 
 @SuppressWarnings("serial")
 public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
-	private Cmd cmd;
+	private CmdProxy cmdProxy;
 	
 	private JTextField tfHost;
 	private JTextField tfPort;
@@ -28,9 +26,9 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
 	private JPasswordField tfPassword;
 	private JButton btConnect;
 	
-	public ConnectionParamsPanel(Cmd cmd){
-		this.cmd = cmd;
-		this.cmd.addListener(new ConnectionListener());
+	public ConnectionParamsPanel(CmdProxy cmdProxy){
+		this.cmdProxy = cmdProxy;
+		this.cmdProxy.addObserver(new ConnectionObserver());
 		
 		configure();
 		addControls();
@@ -64,8 +62,8 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
 		btConnect.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				if (cmd.getConnectedUser() != null){
-					cmd.disconnect();
+				if (cmdProxy.getConnectedUser() != null){
+					cmdProxy.disconnect();
 					return;
 				}
 				int port;
@@ -73,7 +71,7 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
 					port = Integer.parseInt(tfPort.getText());					
 				}
 			    catch (NumberFormatException nfe) {
-			    	UIUtils.showDialog(ConnectionParamsPanel.this.getParent(),
+			    	Utils.showDialog(ConnectionParamsPanel.this.getParent(),
 			    			JOptionPane.ERROR_MESSAGE, 
 			    			"Parse error", 
 			    			"Port parsing error.");
@@ -89,13 +87,13 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
 						tfUser.getText(), 
 						new String(tfPassword.getPassword()));
 				
-				cmd.connect(params);
+				cmdProxy.connect(params);
 			}
 	       });
         add(btConnect);
 	}
 	
-	private class ConnectionListener implements CmdListener{
+	private class ConnectionObserver implements CmdObserver{
 		@Override
 		public void disconnected() {
 			tfHost.setEnabled(true);
@@ -118,6 +116,6 @@ public class ConnectionParamsPanel  extends JPanel implements ControlsStorage {
 		}
 
 		@Override
-		public void fileSystemGot(String path, FileNode node) {}		
+		public void fileSystemGot(String path, FileNode node) {}	
 	}
 }

@@ -2,10 +2,8 @@ package com.g4share.jftp.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
-
 import javax.swing.JPanel;
-
-import com.g4share.jftp.command.Cmd;
+import com.g4share.jftp.command.CmdProxy;
 import com.g4share.jftp.ui.control.ConnectionParamsPanel;
 import com.g4share.jftp.ui.control.FileSystemPanel;
 import com.g4share.jftp.ui.control.StatusPanel;
@@ -16,15 +14,14 @@ public final class MainForm extends JCommonForm {
 	private ConnectionParamsPanel connectionParamsPanel;
 	private FileSystemPanel fileSystemPanel;
 	
-	public MainForm(Cmd cmd){			
-		connectionParamsPanel = new ConnectionParamsPanel(cmd);
-		fileSystemPanel = new FileSystemPanel(cmd);
-		statusPanel = new StatusPanel(cmd);
+	public MainForm(CmdProxy cmdProxy){			
+		connectionParamsPanel = new ConnectionParamsPanel(cmdProxy);
+		fileSystemPanel = new FileSystemPanel(cmdProxy);
+		statusPanel = new StatusPanel(cmdProxy);
 	}
 
 	@Override
 	public void configure() {
-		setAlwaysOnTop(true);
 		setTitle("java ftp client.");
 		setBounds(new Rectangle(10, 10, 800, 600));        
 	}

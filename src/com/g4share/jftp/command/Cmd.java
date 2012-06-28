@@ -1,14 +1,15 @@
 package com.g4share.jftp.command;
 
 
+import com.g4share.jftp.command.fs.FileSystemStore;
 import com.g4share.jftp.data.ConnectionParams;
+import com.g4share.jftp.data.FileNode;
 
-public interface Cmd {
-	public void addListener(CmdListener listener);
-	
+public interface Cmd extends FileSystemStore {	
 	public String getConnectedUser();
-	public void connect(ConnectionParams params);
+	public String connect(ConnectionParams params);
 	public void disconnect();
 	
-	public void getFileSystem(String path);
+	@Override
+	public FileNode getFileSystem(String path);
 }

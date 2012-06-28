@@ -44,4 +44,16 @@ public class FileNode implements Comparable<FileNode> {
 		if (isFolder != compareTo.isFolder) return isFolder ? -1 : 1;
 		return name.compareTo(compareTo.name);
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null) return false;
+	    if (getClass() != obj.getClass()) return false;
+	    
+	    final FileNode other = (FileNode) obj;
+	    return name.equals(other.name)
+	    		&& isFolder == other.isFolder
+	    		&& size == other.size;
+	}
 }

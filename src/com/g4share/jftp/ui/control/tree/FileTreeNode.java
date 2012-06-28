@@ -1,7 +1,6 @@
 package com.g4share.jftp.ui.control.tree;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import com.g4share.jftp.data.FileNode;
 
 @SuppressWarnings("serial")

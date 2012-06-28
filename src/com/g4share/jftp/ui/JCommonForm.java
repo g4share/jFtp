@@ -1,7 +1,6 @@
 package com.g4share.jftp.ui;
 
 import java.lang.reflect.InvocationTargetException;
-
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
