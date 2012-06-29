@@ -29,8 +29,15 @@ public class FakedCmd implements Cmd {
 		nodes.add(new FileNode("fld2", true, 0));
 		nodes.add(new FileNode("fld3", true, 0));
 		nodes.add(new FileNode("file", false, 20));
+		
 		nodes.add(new FileNode("data.xml", false, 373));
 		nodes.add(new FileNode("jFtp.zip", false, 400));
+		
+		nodes.add(new FileNode("initrd.img", false, 14141362));
+		nodes.add(new FileNode("vmlinuz", false, 164444));
+		
+		nodes.add(new FileNode("autoexec.bat", false, 24));
+		nodes.add(new FileNode("config.sys", false, 5));
 		files.put("/", nodes);
 		
 		nodes = new HashSet<FileNode>();
